@@ -18,6 +18,7 @@
   "author": "Asbjørn Ulsberg <asbjorn@ulsberg.no>",
   "license": "MIT",
   "dependencies": {
+    "jsome": "^2.3.26",
     "node-fetch": "^1.6.3"
   }
 }
