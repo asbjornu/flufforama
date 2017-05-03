@@ -1,0 +1,19 @@
+{
+  "name": "payex.checkout.launch",
+  "version": "0.0.1",
+  "description": "Launch Event Application for PayEx Checkout",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "payex",
+    "checkout",
+    "shop",
+    "web",
+    "webshop",
+    "payment"
+  ],
+  "author": "Asbjørn Ulsberg <asbjorn@ulsberg.no>",
+  "license": "MIT"
+}
