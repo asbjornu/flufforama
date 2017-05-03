@@ -4,6 +4,7 @@
   "description": "Launch Event Application for PayEx Checkout",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -15,5 +16,8 @@
     "payment"
   ],
   "author": "Asbjørn Ulsberg <asbjorn@ulsberg.no>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^1.6.3"
+  }
 }
