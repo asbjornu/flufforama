@@ -28,6 +28,7 @@
   "author": "Asbjørn Ulsberg <asbjorn@ulsberg.no>",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^4.0.0",
     "express": "^4.15.2",
     "jsome": "^2.3.26",
     "morgan": "^1.8.1",
