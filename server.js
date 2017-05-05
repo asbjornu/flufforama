@@ -1,7 +1,5 @@
 require('dotenv').config();
 
-const fetch = require('node-fetch');
-const jsome = require('jsome');
 const express = require('express');
 const logger = require('morgan');
 const pug = require('pug');
