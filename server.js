@@ -6,6 +6,7 @@ const express = require('express');
 const logger = require('morgan');
 const pug = require('pug');
 const bodyParser = require("body-parser");
+const payexCheckout = require('./src/payex.checkout');
 const app = express();
 
 app.use(logger('dev'));
@@ -14,51 +15,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res, next) => {
     try {
-        var createPaymentSession = item => {
-            var body = {
-                amount: 199.50,
-                vatAmount: 39.90,
-                currency: "NOK",
-                callbackUrl: "https://merchant.api/callback",
-                reference: `fluffy-${item}`,
-                culture: "en-US",
-                fees : {
-                    "invoice": {
-                        "amount": 19.50,
-                        "vatAmount": 3.90,
-                        "description": "Invoice fee"
-                    }
-                }
-            };
-
-            console.log(`Setting up creation of Payment Session ${item}:`);
-            jsome(body);
-
-            return fetch(app.locals.paymentSession, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN,
-                    'Content-Type': 'application/json'
-                },
-                body : JSON.stringify(body)
-            }).then(result => {
-                console.log(`Payment Session ${item} POST completed with HTTP status ${result.status}.`)
-                if (result.status != 201) {
-                    throw `Error ${result.status}`;
-                }
-
-                return result.json();
-            }).then(json => {
-                jsome(json);
-                return json.id;
-            }).catch(e => {
-                console.error(`Payment Session ${item} POST failed:`, e)
-            });
-        };
-
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
 
-        var createPaymentSessions = new Array(8).fill().map((_, i) => i + 1).map(createPaymentSession);
+        var createPaymentSessions = new Array(8)
+            .fill()
+            .map((_, i) => i + 1)
+            .map(i => payexCheckout.createPaymentSession(app.locals.paymentSessionCreationUrl, `fluffy-${i}`));
+
         Promise.all(createPaymentSessions).then(paymentSessions => {
             paymentSessions = paymentSessions.filter(x => x != undefined);
             var html = template({
@@ -184,6 +147,6 @@ app.listen(process.env.PORT || 3000, () => {
         return res.json();
     }).then(json => {
         jsome(json);
-        app.locals.paymentSession = json.paymentSession;
+        app.locals.paymentSessionCreationUrl = json.paymentSession;
     });
 });
