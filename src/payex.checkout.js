@@ -3,6 +3,16 @@ const jsome = require('jsome');
 var paymentSessionCreationUrl = null;
 var accessToken = null;
 
+/*
+ * Module export function.
+ *
+ * Used to initialize the PayEx Checkout module with Access Token and
+ * the URL to create Payment Sessions.
+ *
+ * @param at The Access Token that should be used to authorize the HTTP requests performed against PayEx.
+ *
+ * @return An object containing the methods createPaymentSession() and capture().
+ */
 module.exports = at => {
     accessToken = at;
 
@@ -23,6 +33,14 @@ module.exports = at => {
     };
 }
 
+/*
+ * Creates a Payment Session.
+ *
+ * @param reference The reference that identifies the order or similar that the payment is for.
+ *
+ * @return A Promise that, when fulfilled, will return the URL of the created Payment Session.
+ *
+ */
 function createPaymentSession(reference) {
     var body = {
         amount: 199.50,
@@ -65,7 +83,14 @@ function createPaymentSession(reference) {
     });
 }
 
-
+/*
+ * Captures a Payment Session.
+ *
+ * @param paymentSession The URL of the Payment Session to capture.
+ *
+ * @return A Promise that, when fulfilled, will return an object containing the amount and state of the captured payment.
+ *
+ */
 function capture(paymentSession) {
     return fetch(paymentSession, {
         headers: {
