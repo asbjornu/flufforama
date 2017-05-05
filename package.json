@@ -1,7 +1,7 @@
 {
-  "name": "payex.checkout.launch",
+  "name": "flufforama",
   "version": "0.0.1",
-  "description": "Launch Event Application for PayEx Checkout",
+  "description": "Flufforama: Instant Fluffy Gratification — Deliered!",
   "main": "index.js",
   "scripts": {
     "start": "npm run watch",
@@ -17,7 +17,9 @@
     "shop",
     "web",
     "webshop",
-    "payment"
+    "payment",
+    "fluffy",
+    "flufforama"
   ],
   "author": "Asbjørn Ulsberg <asbjorn@ulsberg.no>",
   "license": "MIT",
