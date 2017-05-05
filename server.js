@@ -11,6 +11,14 @@ app.use(logger('dev'));
 app.use(express.static(__dirname + '/static'));
 app.use(bodyParser.urlencoded({ extended: false }));
 
+/*
+ * GET /
+ *
+ * The home page, displaying the fluffy animals you can buy.
+ * Should perform a series of POST requests to PayEx Checkout to create
+ * one Payment Session for each fluffy animal.
+ *
+ */
 app.get('/', (req, res, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
@@ -42,6 +50,16 @@ app.get('/', (req, res, next) => {
     }
 });
 
+/*
+ * POST /
+ *
+ * Invoked after PayEx checkout is complete. The posted form will have
+ * `paymentSession` as a hidden field, containing the URL of the Payment
+ * Session that was purchased.
+ *
+ * Performs capture on the created Payment and redirects to the receipt.
+ *
+ */
 app.post('/', (req, res, next) => {
     try {
         const checkout = app.locals.payexCheckout;
@@ -62,6 +80,13 @@ app.post('/', (req, res, next) => {
     }
 });
 
+/*
+ * GET /receipt
+ *
+ * After the POST performing capture is complete, it redirects to this page,
+ * displaying the status about the captured payment.
+ *
+ */
 app.get('/receipt', (req, res, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/receipt.pug');
