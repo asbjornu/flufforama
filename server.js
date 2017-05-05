@@ -47,65 +47,8 @@ app.post('/', (req, res, next) => {
     try {
         var paymentSession = req.body.paymentSession;
 
-        fetch(paymentSession, {
-            headers: {
-                'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN
-            }
-        }).then(result => {
-            console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
-            if (result.status != 200) {
-                throw `Error ${result.status}`;
-            }
-
-            return result.json();
-        }).then(json => {
-            jsome(json);
-            return json.payment;
-        }).then(paymentUrl => {
-            return fetch(paymentUrl, {
-                headers: {
-                    'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN
-                }
-            });
-        }).then(result => {
-            console.log(`GET ${req.body.paymentSession} completed with HTTP status ${result.status}.`)
-            if (result.status != 200) {
-                throw `Error ${result.status}`;
-            }
-
-            return result.json();
-        }).then(json => {
-            jsome(json);
-
-            var captureOperation = json.operations.filter(x => x.rel == 'create-checkout-capture');
-            if (captureOperation.length == 0) {
-                throw `Payment ${json.payment.id} had no capture operation`;
-            }
-
-            var captureOperationUrl = captureOperation[0].href;
-
-            return fetch(captureOperationUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    transaction: {
-                        description: 'Capturing the fluff!'
-                    }
-                })
-            });
-        }).then(result => {
-            console.log(`Capture completed with HTTP status ${result.status}.`)
-            if (result.status != 201) {
-                throw `Error ${result.status}`;
-            }
-
-            return result.json()
-        }).then(json => {
-            jsome(json);
-            res.redirect(`/receipt?ps=${paymentSession}&state=${json.capture.transaction.state}`)
+        app.locals.payexCheckout.capture(paymentSession).then(result => {
+            res.redirect(`/receipt?ps=${paymentSession}&state=${result.state}`)
         }).catch(e => {
             console.error(e);
             const template = pug.compileFile(__dirname + '/src/templates/error.pug');

@@ -18,7 +18,8 @@ module.exports = at => {
     });
 
     return {
-        createPaymentSession : createPaymentSession
+        createPaymentSession : createPaymentSession,
+        capture: capture
     };
 }
 
@@ -62,4 +63,70 @@ function createPaymentSession(reference) {
     }).catch(e => {
         console.error(`Payment Session ${reference} POST failed:`, e)
     });
+}
+
+
+function capture(paymentSession) {
+    return fetch(paymentSession, {
+        headers: {
+            'Authorization': 'Bearer ' + accessToken
+        }
+    }).then(result => {
+        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        if (result.status != 200) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json();
+    }).then(json => {
+        jsome(json);
+        return json.payment;
+    }).then(paymentUrl => {
+        return fetch(paymentUrl, {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
+        });
+    }).then(result => {
+        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        if (result.status != 200) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json();
+    }).then(json => {
+        jsome(json);
+
+        var captureOperation = json.operations.filter(x => x.rel == 'create-checkout-capture');
+        if (captureOperation.length == 0) {
+            throw `Payment ${json.payment.id} had no capture operation`;
+        }
+
+        var captureOperationUrl = captureOperation[0].href;
+
+        return fetch(captureOperationUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                transaction: {
+                    description: 'Capturing the fluff!'
+                }
+            })
+        });
+    }).then(result => {
+        console.log(`Capture completed with HTTP status ${result.status}.`)
+        if (result.status != 201) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json()
+    }).then(json => {
+        jsome(json);
+        return {
+            state: json.capture.transaction.state
+        }
+    })
 }
