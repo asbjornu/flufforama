@@ -6,7 +6,8 @@ block content
         with nothing more than a few pushes of buttons! Get your personal flufforama
         delivered today!
 
-    each paymentSessionUrl in paymentSessions
+    each paymentSession in paymentSessions
         form(method='post')
-            button(type='submit' data-payex-checkout=paymentSessionUrl disabled)
+            input(type='hidden' name='paymentSession' value=paymentSession)
+            button(type='submit' data-payex-checkout=paymentSession disabled)
                 span Buy now!

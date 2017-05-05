@@ -1,0 +1,9 @@
+extend default
+
+block content
+    h3 Payment #{state}!
+    p
+        | The payment for the&nbsp;
+        a(href=paymentSession) Payment Session
+        | is&nbsp;
+        strong #{state}.

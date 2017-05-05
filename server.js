@@ -4,11 +4,13 @@ const fetch = require('node-fetch');
 const jsome = require('jsome');
 const express = require('express');
 const logger = require('morgan');
+const pug = require('pug');
+const bodyParser = require("body-parser");
 const app = express();
-const template = require('pug').compileFile(__dirname + '/src/templates/index.pug');
 
 app.use(logger('dev'));
 app.use(express.static(__dirname + '/static'));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (req, res, next) => {
     try {
@@ -32,7 +34,7 @@ app.get('/', (req, res, next) => {
             console.log(`Setting up creation of Payment Session ${item}:`);
             jsome(body);
 
-            return fetch(app.locals.paymentSessionUrl, {
+            return fetch(app.locals.paymentSession, {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN,
@@ -41,8 +43,8 @@ app.get('/', (req, res, next) => {
                 body : JSON.stringify(body)
             }).then(result => {
                 console.log(`Payment Session ${item} POST completed with HTTP status ${result.status}.`)
-                if (result.status == 401) {
-                    throw 'Unauthorized!';
+                if (result.status != 201) {
+                    throw `Error ${result.status}`;
                 }
 
                 return result.json();
@@ -53,6 +55,8 @@ app.get('/', (req, res, next) => {
                 console.error(`Payment Session ${item} POST failed:`, e)
             });
         };
+
+        const template = pug.compileFile(__dirname + '/src/templates/index.pug');
 
         var createPaymentSessions = new Array(8).fill().map((_, i) => i + 1).map(createPaymentSession);
         Promise.all(createPaymentSessions).then(paymentSessions => {
@@ -75,6 +79,95 @@ app.get('/', (req, res, next) => {
     }
 });
 
+app.post('/', (req, res, next) => {
+    try {
+        var paymentSession = req.body.paymentSession;
+
+        fetch(paymentSession, {
+            headers: {
+                'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN
+            }
+        }).then(result => {
+            console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+            if (result.status != 200) {
+                throw `Error ${result.status}`;
+            }
+
+            return result.json();
+        }).then(json => {
+            jsome(json);
+            return json.payment;
+        }).then(paymentUrl => {
+            return fetch(paymentUrl, {
+                headers: {
+                    'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN
+                }
+            });
+        }).then(result => {
+            console.log(`GET ${req.body.paymentSession} completed with HTTP status ${result.status}.`)
+            if (result.status != 200) {
+                throw `Error ${result.status}`;
+            }
+
+            return result.json();
+        }).then(json => {
+            jsome(json);
+
+            var captureOperation = json.operations.filter(x => x.rel == 'create-checkout-capture');
+            if (captureOperation.length == 0) {
+                throw `Payment ${json.payment.id} had no capture operation`;
+            }
+
+            var captureOperationUrl = captureOperation[0].href;
+
+            return fetch(captureOperationUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + process.env.ACCESS_TOKEN,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    transaction: {
+                        description: 'Capturing the fluff!'
+                    }
+                })
+            });
+        }).then(result => {
+            console.log(`Capture completed with HTTP status ${result.status}.`)
+            if (result.status != 201) {
+                throw `Error ${result.status}`;
+            }
+
+            return result.json()
+        }).then(json => {
+            jsome(json);
+            res.redirect(`/receipt?ps=${paymentSession}&state=${json.capture.transaction.state}`)
+        }).catch(e => {
+            console.error(e);
+            const template = pug.compileFile(__dirname + '/src/templates/error.pug');
+            var html = template({
+                error: e
+            })
+            res.send(html);
+        });
+    } catch (e) {
+        next(e)
+    }
+});
+
+app.get('/receipt', (req, res, next) => {
+    try {
+        const template = pug.compileFile(__dirname + '/src/templates/receipt.pug');
+        var html = template({
+            paymentSession: req.query.ps,
+            state: req.query.state
+        })
+        res.send(html);
+    } catch (e) {
+        next(e)
+    }
+});
+
 app.listen(process.env.PORT || 3000, () => {
     var accessToken = process.env.ACCESS_TOKEN;
     if (!accessToken) {
@@ -91,6 +184,6 @@ app.listen(process.env.PORT || 3000, () => {
         return res.json();
     }).then(json => {
         jsome(json);
-        app.locals.paymentSessionUrl = json.paymentSession;
+        app.locals.paymentSession = json.paymentSession;
     });
 });
