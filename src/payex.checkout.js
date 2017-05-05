@@ -126,6 +126,7 @@ function capture(paymentSession) {
     }).then(json => {
         jsome(json);
         return {
+            amount: json.capture.transaction.amount,
             state: json.capture.transaction.state
         }
     })

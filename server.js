@@ -15,13 +15,14 @@ app.get('/', (req, res, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
         const checkout = app.locals.payexCheckout;
-
-        var createPaymentSessions = new Array(8)
+        const createPaymentSessions = new Array(8)
             .fill()
             .map((_, i) => i + 1)
             .map(i => checkout.createPaymentSession(`fluffy-${i}`));
 
         Promise.all(createPaymentSessions).then(paymentSessions => {
+            // TODO: We shouldn't have to filter on undefined;
+            //       all Payment Session POSTs should succeed.
             paymentSessions = paymentSessions.filter(x => x != undefined);
             var html = template({
                 title: 'Home',
@@ -43,10 +44,11 @@ app.get('/', (req, res, next) => {
 
 app.post('/', (req, res, next) => {
     try {
-        var paymentSession = req.body.paymentSession;
+        const checkout = app.locals.payexCheckout;
+        const paymentSession = req.body.paymentSession;
 
-        app.locals.payexCheckout.capture(paymentSession).then(result => {
-            res.redirect(`/receipt?ps=${paymentSession}&state=${result.state}`)
+        checkout.capture(paymentSession).then(result => {
+            res.redirect(`/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`)
         }).catch(e => {
             console.error(e);
             const template = pug.compileFile(__dirname + '/src/templates/error.pug');
@@ -63,9 +65,11 @@ app.post('/', (req, res, next) => {
 app.get('/receipt', (req, res, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/receipt.pug');
+        var amount = parseFloat(Math.round(req.query.amount * 100) / 100).toFixed(2);
         var html = template({
             paymentSession: req.query.ps,
-            state: req.query.state
+            state: req.query.state,
+            amount: amount
         })
         res.send(html);
     } catch (e) {
