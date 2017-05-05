@@ -16,11 +16,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', (req, res, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
+        const checkout = app.locals.payexCheckout;
 
         var createPaymentSessions = new Array(8)
             .fill()
             .map((_, i) => i + 1)
-            .map(i => payexCheckout.createPaymentSession(app.locals.paymentSessionCreationUrl, `fluffy-${i}`));
+            .map(i => checkout.createPaymentSession(`fluffy-${i}`));
 
         Promise.all(createPaymentSessions).then(paymentSessions => {
             paymentSessions = paymentSessions.filter(x => x != undefined);
@@ -138,15 +139,5 @@ app.listen(process.env.PORT || 3000, () => {
     }
     console.log(`Bootstrapping with Access Token: ${accessToken}.`)
     console.log('Listening on http://localhost:' + (process.env.PORT || 3000))
-
-    fetch('https://api.externalintegration.payex.com/psp/checkout', {
-        headers: {
-            authorization: 'Bearer ' + accessToken
-        }
-    }).then(res => {
-        return res.json();
-    }).then(json => {
-        jsome(json);
-        app.locals.paymentSessionCreationUrl = json.paymentSession;
-    });
+    app.locals.payexCheckout = payexCheckout(process.env.ACCESS_TOKEN);
 });
