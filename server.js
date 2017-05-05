@@ -78,7 +78,8 @@ app.get('/receipt', (req, res, next) => {
 app.listen(process.env.PORT || 3000, () => {
     var accessToken = process.env.ACCESS_TOKEN;
     if (!accessToken) {
-        console.error('No access token configured. Have you created an .env file with ACCESS_TOKEN=[token] in it?');
+        console.error('No access token configured. Have you created an .env file with ACCESS_TOKEN=<ACCESS_TOKEN> in it?');
+        accessToken = '<NO_ACCESS_TOKEN_CONFIGURED>';
     }
     console.log(`Bootstrapping with Access Token: ${accessToken}.`)
     console.log('Listening on http://localhost:' + (process.env.PORT || 3000))
