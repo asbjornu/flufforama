@@ -32,10 +32,10 @@ function createPaymentSession(reference) {
         reference: reference,
         culture: "en-US",
         fees : {
-            "invoice": {
-                "amount": 19.50,
-                "vatAmount": 3.90,
-                "description": "Invoice fee"
+            invoice: {
+                amount: 19.50,
+                vatAmount: 3.90,
+                description: "Invoice fee"
             }
         }
     };
