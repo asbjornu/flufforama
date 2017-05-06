@@ -10,8 +10,8 @@ var accessToken = null;
  * the URL to create Payment Sessions.
  *
  * @param at The Access Token that should be used to authorize the HTTP requests performed against PayEx.
- *
  * @return An object containing the methods createPaymentSession() and capture().
+ *
  */
 module.exports = at => {
     accessToken = at;
@@ -36,30 +36,13 @@ module.exports = at => {
 /*
  * Creates a Payment Session.
  *
- * @param reference The reference that identifies the order or similar that the payment is for.
- *
+ * @param request The request object that will create the Payment Session.
  * @return A Promise that, when fulfilled, will return the URL of the created Payment Session.
  *
  */
-function createPaymentSession(reference) {
-    var body = {
-        amount: 199.50,
-        vatAmount: 39.90,
-        currency: "NOK",
-        callbackUrl: "https://merchant.api/callback",
-        reference: reference,
-        culture: "en-US",
-        fees : {
-            invoice: {
-                amount: 19.50,
-                vatAmount: 3.90,
-                description: "Invoice fee"
-            }
-        }
-    };
-
-    console.log(`Setting up creation of Payment Session ${reference}:`);
-    jsome(body);
+function createPaymentSession(request) {
+    console.log(`Setting up creation of Payment Session ${request.reference}:`);
+    jsome(request);
 
     return fetch(paymentSessionCreationUrl, {
         method: 'POST',
@@ -67,9 +50,9 @@ function createPaymentSession(reference) {
             'Authorization': 'Bearer ' + accessToken,
             'Content-Type': 'application/json'
         },
-        body : JSON.stringify(body)
+        body : JSON.stringify(request)
     }).then(result => {
-        console.log(`Payment Session ${reference} POST completed with HTTP status ${result.status}.`)
+        console.log(`Payment Session ${request.reference} POST completed with HTTP status ${result.status}.`)
         if (result.status != 201) {
             throw `Error ${result.status}`;
         }
@@ -79,7 +62,7 @@ function createPaymentSession(reference) {
         jsome(json);
         return json.id;
     }).catch(e => {
-        console.error(`Payment Session ${reference} POST failed:`, e)
+        console.error(`Payment Session ${request.reference} POST failed:`, e)
     });
 }
 
@@ -87,7 +70,6 @@ function createPaymentSession(reference) {
  * Captures a Payment Session.
  *
  * @param paymentSession The URL of the Payment Session to capture.
- *
  * @return A Promise that, when fulfilled, will return an object containing the amount and state of the captured payment.
  *
  */

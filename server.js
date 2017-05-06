@@ -22,11 +22,28 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', (req, res, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
-        const checkout = app.locals.payexCheckout;
+        const createPaymentSession = item => {
+            return app.locals.payexCheckout.createPaymentSession({
+                    amount: 199.50,
+                    vatAmount: 39.90,
+                    currency: "NOK",
+                    callbackUrl: "https://merchant.api/callback",
+                    reference: `fluffy-${item}`,
+                    culture: "en-US",
+                    fees : {
+                        invoice: {
+                            amount: 19.50,
+                            vatAmount: 3.90,
+                            description: "Invoice fee"
+                        }
+                    }
+                }
+            )
+        };
         const createPaymentSessions = new Array(8)
             .fill()
             .map((_, i) => i + 1)
-            .map(i => checkout.createPaymentSession(`fluffy-${i}`));
+            .map(createPaymentSession);
 
         Promise.all(createPaymentSessions).then(paymentSessions => {
             // TODO: We shouldn't have to filter on undefined;
