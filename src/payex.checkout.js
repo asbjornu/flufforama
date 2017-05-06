@@ -60,7 +60,7 @@ function createPaymentSession(request) {
         return result.json();
     }).then(json => {
         jsome(json);
-        return json.id;
+        return json;
     }).catch(e => {
         console.error(`Payment Session ${request.reference} POST failed:`, e)
     });

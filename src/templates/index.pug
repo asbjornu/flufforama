@@ -3,11 +3,11 @@ extend default
 block content
     p.
         Enjoy our wide selection of fluffy animals. Gaze at them and take them home
-        with nothing more than a few pushes of buttons! Get your personal flufforama
-        delivered today!
+        by clicking "Buy now" and completing a few simple steps! Get your personal
+        flufforama delivered today!
 
     each paymentSession in paymentSessions
         form(method='post')
-            input(type='hidden' name='paymentSession' value=paymentSession)
-            button(type='submit' data-payex-checkout=paymentSession disabled)
+            input(type='hidden' name='paymentSession' value=paymentSession.id)
+            button(type='submit' data-payex-checkout=paymentSession.id disabled)
                 span Buy now!
