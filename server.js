@@ -27,9 +27,18 @@ app.get('/', (req, res, next) => {
             .fill()
             .map((_, i) => i + 1)
             .map(item => {
+                var r = parseFloat(Math.round(Math.random() * 100) / 100).toFixed(2);
+                var a = Math.random() * item * 223;
+                var grossAmount = parseFloat(Math.round(a * 100) / 100).toFixed(1);
+                var vatRate = 25;
+                var vatFactor = 1 + (vatRate / 100);
+                var netAmount = grossAmount / vatFactor;
+                var v = grossAmount - netAmount;
+                var vatAmount = parseFloat(Math.round(v * 100) / 100).toFixed(2);
+
                 return {
-                    amount: 199.50,
-                    vatAmount: 39.90,
+                    amount: grossAmount,
+                    vatAmount: vatAmount,
                     currency: "NOK",
                     callbackUrl: "https://merchant.api/callback",
                     reference: `fluffy-${item}`,
