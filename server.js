@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
  * one Payment Session for each fluffy animal.
  *
  */
-app.get('/', (req, res, next) => {
+app.get('/', (request, response, next) => {
     try {
         const checkout = app.locals.payexCheckout;
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
@@ -36,14 +36,14 @@ app.get('/', (req, res, next) => {
                 title: 'Home',
                 paymentSessions: paymentSessions
             })
-            res.send(html);
+            response.send(html);
         }).catch(e => {
             console.error(e)
             var html = template({
                 title: 'Error',
                 error: e
             })
-            res.send(html);
+            response.send(html);
         });
     } catch (e) {
         next(e)
@@ -60,20 +60,20 @@ app.get('/', (req, res, next) => {
  * Performs capture on the created Payment and redirects to the receipt.
  *
  */
-app.post('/', (req, res, next) => {
+app.post('/', (request, response, next) => {
     try {
         const checkout = app.locals.payexCheckout;
-        const paymentSession = req.body.paymentSession;
+        const paymentSession = request.body.paymentSession;
 
         checkout.capture(paymentSession).then(result => {
-            res.redirect(`/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`)
+            response.redirect(`/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`)
         }).catch(e => {
             console.error(e);
             const template = pug.compileFile(__dirname + '/src/templates/error.pug');
             var html = template({
                 error: e
             })
-            res.send(html);
+            response.send(html);
         });
     } catch (e) {
         next(e)
@@ -87,16 +87,16 @@ app.post('/', (req, res, next) => {
  * displaying the status about the captured payment.
  *
  */
-app.get('/receipt', (req, res, next) => {
+app.get('/receipt', (request, response, next) => {
     try {
         const template = pug.compileFile(__dirname + '/src/templates/receipt.pug');
-        var amount = parseFloat(Math.round(req.query.amount * 100) / 100).toFixed(2);
+        var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
         var html = template({
-            paymentSession: req.query.ps,
-            state: req.query.state,
+            paymentSession: request.query.ps,
+            state: request.query.state,
             amount: amount
         })
-        res.send(html);
+        response.send(html);
     } catch (e) {
         next(e)
     }
