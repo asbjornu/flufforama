@@ -5,6 +5,7 @@ const logger = require('morgan');
 const pug = require('pug');
 const bodyParser = require("body-parser");
 const payexCheckout = require('./src/payex.checkout');
+const paymentSession = require('./src/paymentsession');
 const app = express();
 
 app.use(logger('dev'));
@@ -23,35 +24,9 @@ app.get('/', (req, res, next) => {
     try {
         const checkout = app.locals.payexCheckout;
         const template = pug.compileFile(__dirname + '/src/templates/index.pug');
-        const createPaymentSessions = new Array(8)
-            .fill()
-            .map((_, i) => i + 1)
-            .map(item => {
-                var r = parseFloat(Math.round(Math.random() * 100) / 100).toFixed(2);
-                var a = Math.random() * item * 223;
-                var grossAmount = parseFloat(Math.round(a * 100) / 100).toFixed(1);
-                var vatRate = 25;
-                var vatFactor = 1 + (vatRate / 100);
-                var netAmount = grossAmount / vatFactor;
-                var v = grossAmount - netAmount;
-                var vatAmount = parseFloat(Math.round(v * 100) / 100).toFixed(2);
-
-                return {
-                    amount: grossAmount,
-                    vatAmount: vatAmount,
-                    currency: "NOK",
-                    callbackUrl: "https://merchant.api/callback",
-                    reference: `fluffy-${item}`,
-                    culture: "en-US",
-                    fees: {
-                        invoice: {
-                            amount: 19.50,
-                            vatAmount: 3.90,
-                            description: "Invoice fee"
-                        }
-                    }
-                }
-            }).map(checkout.createPaymentSession)
+        const createPaymentSessions = paymentSession
+            .initialize()
+            .map(checkout.createPaymentSession)
 
         Promise.all(createPaymentSessions).then(paymentSessions => {
             // TODO: We shouldn't have to filter on undefined;
