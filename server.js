@@ -102,6 +102,13 @@ app.get('/receipt', (request, response, next) => {
     }
 });
 
+/*
+ * Starts the web application.
+ *
+ * Bootstraps with the environment variable ACCESS_TOKEN, used to authorize
+ * against PayEx Checkout.
+ *
+ */
 app.listen(process.env.PORT || 3000, () => {
     var accessToken = process.env.ACCESS_TOKEN;
     if (!accessToken) {
