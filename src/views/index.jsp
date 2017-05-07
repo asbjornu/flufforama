@@ -9,7 +9,7 @@
 <%| paymentSessions paymentSession %>
 	<form method="post">
 		<input type="hidden" name="paymentSession" value="<%= paymentSession.id %>">
-		<button type="submit" data-payex-checkout="<%= paymentSession.id %>" disabled>
+		<button type="submit" data-payex-checkout="<%= paymentSession.id %>">
 			<span>
 				Buy now for only <br>
 				<%= paymentSession.currency %>
