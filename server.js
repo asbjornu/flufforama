@@ -53,7 +53,7 @@ app.get('/', (request, response, next) => {
 /*
  * POST /
  *
- * Invoked after PayEx checkout is complete. The posted form will have
+ * Invoked after the PayEx Checkout is complete. The posted form will have
  * `paymentSession` as a hidden field, containing the URL of the Payment
  * Session that was purchased.
  *
