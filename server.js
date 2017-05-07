@@ -29,9 +29,9 @@ app.get('/', (request, response, next) => {
             .map(checkout.createPaymentSession)
 
         Promise.all(createPaymentSessions).then(paymentSessions => {
-            // TODO: We shouldn't have to filter on undefined;
+            // TODO: We shouldn't have to filter on null;
             //       all Payment Session POSTs should succeed.
-            paymentSessions = paymentSessions.filter(x => x != undefined);
+            paymentSessions = paymentSessions.filter(x => x != null);
             var html = template({
                 title: 'Home',
                 paymentSessions: paymentSessions

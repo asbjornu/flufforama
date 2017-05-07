@@ -63,6 +63,9 @@ function createPaymentSession(request) {
         return json;
     }).catch(e => {
         console.error(`Payment Session ${request.reference} POST failed:`, e)
+		// TODO: We shouldn't have to return null;
+		//       all Payment Session POSTs should succeed.
+		return null;
     });
 }
 
