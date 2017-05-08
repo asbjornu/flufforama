@@ -1,9 +1,7 @@
-extend default
+<%! layout %>
 
-block content
-    h3 Payment #{state}!
-    p
-        | The&nbsp;
-        a(href=paymentSession) payment
-        | of #{amount} is&nbsp;
-        strong #{state}.
+<h3>Payment <%= state %></h3>
+<p>
+	The <a href="<%= paymentSession %>">payment</a> of <%= amount %> is
+	<strong><%= state %></strong>
+</p>

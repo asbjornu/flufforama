@@ -1,5 +1,4 @@
-extend default
+<%! layout %>
 
-block content
-    h3 Error!
-    p #{error}
+<h3>Error!</h3>
+<p><%= error %></p>

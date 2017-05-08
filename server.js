@@ -2,10 +2,11 @@ require('dotenv').config();
 
 const express = require('express');
 const logger = require('morgan');
-const pug = require('pug');
 const bodyParser = require("body-parser");
 const payexCheckout = require('./src/payex.checkout');
 const paymentSession = require('./src/paymentsession');
+const JUST = require('just');
+const just = new JUST({ root: __dirname + '/src/views/', useCache: true, ext: '.jsp', watchForChanges: true });
 const app = express();
 
 app.use(logger('dev'));
@@ -23,30 +24,34 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.get('/', (request, response, next) => {
     try {
         const checkout = app.locals.payexCheckout;
-        const template = pug.compileFile(__dirname + '/src/templates/index.pug');
         const createPaymentSessions = paymentSession
             .initialize()
             .map(checkout.createPaymentSession)
 
         Promise.all(createPaymentSessions).then(paymentSessions => {
-            // TODO: We shouldn't have to filter on null;
-            //       all Payment Session POSTs should succeed.
-            paymentSessions = paymentSessions.filter(x => x != null);
-            var html = template({
-                title: 'Home',
-                paymentSessions: paymentSessions
-            })
-            response.send(html);
+			just.render('index', { paymentSessions: paymentSessions	}, function(error, html) {
+				if (error) {
+					console.error(error);
+					next(error);
+				} else {
+					response.send(html);
+				}
+			});
         }).catch(e => {
-            console.error(e)
-            var html = template({
-                title: 'Error',
-                error: e
-            })
-            response.send(html);
+            console.error(e);
+
+			just.render('error', { error: e }, function(error, html) {
+				if (error) {
+					console.error(error);
+					next(error);
+				} else {
+					response.send(html);
+				}
+			});
         });
     } catch (e) {
-        next(e)
+		console.error(error);
+        next(e);
     }
 });
 
@@ -69,14 +74,19 @@ app.post('/', (request, response, next) => {
             response.redirect(`/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`)
         }).catch(e => {
             console.error(e);
-            const template = pug.compileFile(__dirname + '/src/templates/error.pug');
-            var html = template({
-                error: e
-            })
-            response.send(html);
+
+			just.render('error', { error: e	}, function(error, html) {
+				if (error) {
+					console.error(error);
+					next(error);
+				} else {
+					response.send(html);
+				}
+			});
         });
     } catch (e) {
-        next(e)
+		console.error(error);
+        next(e);
     }
 });
 
@@ -89,15 +99,22 @@ app.post('/', (request, response, next) => {
  */
 app.get('/receipt', (request, response, next) => {
     try {
-        const template = pug.compileFile(__dirname + '/src/templates/receipt.pug');
         var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
-        var html = template({
+		var model = {
             paymentSession: request.query.ps,
             state: request.query.state,
             amount: amount
-        })
-        response.send(html);
+        };
+		just.render('receipt', model, function(error, html) {
+			if (error) {
+				console.error(error);
+				next(error);
+			} else {
+				response.send(html);
+			}
+		});
     } catch (e) {
+		console.error(error);
         next(e)
     }
 });
