@@ -16,7 +16,7 @@ var accessToken = null;
 module.exports = at => {
     accessToken = at;
 
-    fetch('https://api.externalintegration.payex.com/psp/checkout', {
+    return fetch('https://api.externalintegration.payex.com/psp/checkout', {
         headers: {
             authorization: 'Bearer ' + accessToken
         }
@@ -25,12 +25,12 @@ module.exports = at => {
     }).then(json => {
         jsome(json);
         paymentSessionCreationUrl = json.paymentSession;
-    });
 
-    return {
-        createPaymentSession : createPaymentSession,
-        capture: capture
-    };
+        return {
+            createPaymentSession : createPaymentSession,
+            capture: capture
+        };
+    });
 }
 
 /*

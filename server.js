@@ -117,5 +117,7 @@ app.listen(process.env.PORT || 3000, () => {
     }
     console.log(`Bootstrapping with Access Token: ${accessToken}.`)
     console.log('Listening on http://localhost:' + (process.env.PORT || 3000))
-    app.locals.payexCheckout = payexCheckout(process.env.ACCESS_TOKEN);
+    payexCheckout(process.env.ACCESS_TOKEN).then(init => {
+        app.locals.payexCheckout = init;
+    });
 });
