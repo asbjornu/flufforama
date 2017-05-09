@@ -1,25 +1,26 @@
+/**
+  * The App module, containing the application logic.
+  *
+  * @module app
+  *
+  */
 const payexCheckout = require('./payex.checkout');
 const paymentSession = require('./paymentsession');
 const view = require('./view');
 var server = null;
 
-module.exports = {
-    start: start,
-    showIndex: showIndex,
-    submitOrder: submitOrder,
-    showReceipt: showReceipt,
-}
-
-/*
- * Starts the web application.
- *
- * Bootstraps with the environment variable ACCESS_TOKEN, used to authorize
- * against PayEx Checkout.
- *
- * @param express The Express server object.
- *
- */
-function start(express) {
+/**
+  * Starts the web application.
+  *
+  * Bootstraps with the environment variable ACCESS_TOKEN, used to authorize
+  * against PayEx Checkout.
+  *
+  * @export start
+  * @param express The Express server object.
+  * @return void
+  *
+  */
+module.exports.start = express => {
     server = express;
     require('dotenv').config();
     var accessToken = process.env.ACCESS_TOKEN;
@@ -35,17 +36,23 @@ function start(express) {
             console.log('Listening on http://localhost:' + port);
         });
     });
-}
+};
 
-/*
- * Handles the rendering of the index page.
- *
- * The home page, displaying the fluffy animals you can buy.
- * Should perform a series of POST requests to PayEx Checkout to create
- * one Payment Session for each fluffy animal.
- *
- */
-function showIndex(request, response, next) {
+/**
+  * Handles the rendering of the index page.
+  *
+  * Shows the index page, displaying the fluffy animals you can buy.
+  * Should perform a series of POST requests to PayEx Checkout to create
+  * one Payment Session for each fluffy animal.
+  *
+  * @export showIndex
+  * @param request The Express Request object.
+  * @param response The Express Response object.
+  * @param next The Express Next object.
+  * @return void
+  *
+  */
+module.exports.showIndex = (request, response, next) => {
     try {
         const checkout = server.locals.payexCheckout;
         const createPaymentSessions = paymentSession
@@ -61,20 +68,26 @@ function showIndex(request, response, next) {
     } catch (error) {
         showError(error, response, next);
     }
-}
+};
 
 
-/*
- * Handles the submission of the order.
- *
- * Invoked after the PayEx Checkout is complete. The posted form will have
- * `paymentSession` as a hidden field, containing the URL of the Payment
- * Session that was purchased.
- *
- * Performs capture on the created Payment and redirects to the receipt.
- *
- */
-function submitOrder(request, response, next) {
+/**
+  * Handles the submission of the order.
+  *
+  * Invoked after the PayEx Checkout is complete. The posted form will have
+  * `paymentSession` as a hidden field, containing the URL of the Payment
+  * Session that was purchased.
+  *
+  * Performs capture on the created Payment and redirects to the receipt.
+  *
+  * @export submitOrder
+  * @param request The Express Request object.
+  * @param response The Express Response object.
+  * @param next The Express Next object.
+  * @return void
+  *
+  */
+module.exports.submitOrder = (request, response, next) => {
     try {
         const checkout = server.locals.payexCheckout;
         const paymentSession = request.body.paymentSession;
@@ -87,16 +100,22 @@ function submitOrder(request, response, next) {
     } catch (error) {
         showError(error, response, next);
     }
-}
+};
 
-/*
- * Handles the rendering of the receipt page.
- *
- * After the POST performing capture is complete, it redirects to this page,
- * displaying the status about the captured payment.
- *
- */
-function showReceipt(request, response, next) {
+/**
+  * Handles the rendering of the receipt page.
+  *
+  * After the POST performing capture is complete, it redirects to this page,
+  * displaying the status about the captured payment.
+  *
+  * @export showReceipt
+  * @param request The Express Request object.
+  * @param response The Express Response object.
+  * @param next The Express Next object.
+  * @return void
+  *
+  */
+module.exports.showReceipt = (request, response, next) => {
     try {
 		var model = {
             paymentSession: request.query.ps,
@@ -107,12 +126,18 @@ function showReceipt(request, response, next) {
     } catch (error) {
         showError(error, response, next);
     }
-}
+};
 
-/*
- * Handles the rendering of an error.
- *
- */
+/**
+  * Handles the rendering of an error.
+  *
+  * @private
+  * @param request The Express Request object.
+  * @param response The Express Response object.
+  * @param next The Express Next object.
+  * @return void
+  *
+  */
 function showError(error, response, next) {
     console.error(error);
 

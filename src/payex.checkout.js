@@ -1,18 +1,25 @@
+/**
+  * The PayEx Checkout module, containing the HTTP communication
+  * stuff required to create and capture PayEx Checkout Payments.
+  *
+  * @module payex.checkout
+  *
+  */
 const fetch = require('node-fetch');
 const jsome = require('jsome');
 var paymentSessionCreationUrl = null;
 var accessToken = null;
 
-/*
- * Module export function.
- *
- * Used to initialize the PayEx Checkout module with Access Token and
- * the URL to create Payment Sessions.
- *
- * @param at The Access Token that should be used to authorize the HTTP requests performed against PayEx.
- * @return An object containing the methods createPaymentSession() and capture().
- *
- */
+/**
+  * Initializes the PayEx Checkout module with Access Token and
+  * the URL to create Payment Sessions.
+  *
+  * @constructor
+  * @export
+  * @param at The Access Token that should be used to authorize the HTTP requests performed against PayEx.
+  * @return An object containing the methods createPaymentSession() and capture().
+  *
+  */
 module.exports = at => {
     accessToken = at;
 
@@ -33,13 +40,14 @@ module.exports = at => {
     });
 }
 
-/*
- * Creates a Payment Session.
- *
- * @param request The request object that will create the Payment Session.
- * @return A Promise that, when fulfilled, will return the URL of the created Payment Session.
- *
- */
+/**
+  * Creates a Payment Session.
+  *
+  * @export createPaymentSession
+  * @param request The request object that will create the Payment Session.
+  * @return A Promise that, when fulfilled, will return the URL of the created Payment Session.
+  *
+  */
 function createPaymentSession(request) {
     console.log(`Setting up creation of Payment Session ${request.reference}:`);
     jsome(request);
@@ -69,13 +77,14 @@ function createPaymentSession(request) {
     });
 }
 
-/*
- * Captures a Payment Session.
- *
- * @param paymentSession The URL of the Payment Session to capture.
- * @return A Promise that, when fulfilled, will return an object containing the amount and state of the captured payment.
- *
- */
+/**
+  * Captures a Payment Session.
+  *
+  * @export capture
+  * @param paymentSession The URL of the Payment Session to capture.
+  * @return A Promise that, when fulfilled, will return an object containing the amount and state of the captured payment.
+  *
+  */
 function capture(paymentSession) {
     return fetch(paymentSession, {
         headers: {
