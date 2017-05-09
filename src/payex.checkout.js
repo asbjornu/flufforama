@@ -90,10 +90,75 @@ function createPaymentSession(request) {
   *
   */
 function capture(paymentSession) {
-    return new Promise((resolve, reject) => {
-        return resolve({
-            state: 'Completed',
-            amount: 0
-        })
+	// First GET the Payment Session to retrieve its current state.
+    return fetch(paymentSession, {
+        headers: {
+            'Authorization': 'Bearer ' + accessToken
+        }
+    }).then(result => {
+        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        if (result.status != 200) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json();
+    }).then(json => {
+        jsome(json);
+		// Retrieve the `payment` property; a URL pointing to the Payment that
+		// has been created during the PayEx Checkout user flow.
+        return json.payment;
+    }).then(paymentUrl => {
+		// Perform an HTTP GET request on the Payment URL to retrieve its current state.
+        return fetch(paymentUrl, {
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
+        });
+    }).then(result => {
+        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        if (result.status != 200) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json();
+    }).then(json => {
+        jsome(json);
+
+		// Find the `create-checkout-capture` operation in the returned Payment
+        var captureOperation = json.operations.filter(x => x.rel == 'create-checkout-capture');
+        if (captureOperation.length == 0) {
+            throw `Payment ${json.payment.id} had no capture operation`;
+        }
+
+		// The `create-checkout-capture` operation's `href` contains the URL
+		// we should POST the capture request to.
+        var captureOperationUrl = captureOperation[0].href;
+
+		// Perform the HTTP POST request to capture the Payment.
+        return fetch(captureOperationUrl, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                transaction: {
+                    description: 'Capturing the fluff!'
+                }
+            })
+        });
+    }).then(result => {
+        console.log(`Capture completed with HTTP status ${result.status}.`)
+        if (result.status != 201) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json()
+    }).then(json => {
+        jsome(json);
+        return {
+            amount: json.capture.transaction.amount,
+            state: json.capture.transaction.state
+        }
     });
 }
