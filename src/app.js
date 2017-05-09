@@ -6,10 +6,11 @@ var server = null;
 module.exports = {
     start: start,
     index: index,
+    submitOrder: submitOrder,
 }
 
 /*
- * GET /
+ * Handles the rendering of the index page.
  *
  * The home page, displaying the fluffy animals you can buy.
  * Should perform a series of POST requests to PayEx Checkout to create
@@ -37,6 +38,39 @@ function index(request, response, next) {
         });
     } catch (e) {
 		console.error(e);
+        next(e);
+    }
+}
+
+
+/*
+ * Handles the submission of the order.
+ *
+ * Invoked after the PayEx Checkout is complete. The posted form will have
+ * `paymentSession` as a hidden field, containing the URL of the Payment
+ * Session that was purchased.
+ *
+ * Performs capture on the created Payment and redirects to the receipt.
+ *
+ */
+function submitOrder(request, response, next) {
+    try {
+        const checkout = server.locals.payexCheckout;
+        const paymentSession = request.body.paymentSession;
+
+        checkout.capture(paymentSession).then(result => {
+            const url = `/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`;
+            console.log('Redirecting to:', url);
+            response.redirect(url);
+        }).catch(e => {
+            console.error(e);
+            var model = {
+                error: e
+            };
+            view.render('error', model, response, next);
+        });
+    } catch (e) {
+        console.error(e);
         next(e);
     }
 }

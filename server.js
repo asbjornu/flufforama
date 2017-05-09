@@ -34,30 +34,7 @@ server.get('/', app.index);
  * Performs capture on the created Payment and redirects to the receipt.
  *
  */
-server.post('/', (request, response, next) => {
-    try {
-        const checkout = server.locals.payexCheckout;
-        const paymentSession = request.body.paymentSession;
-
-        checkout.capture(paymentSession).then(result => {
-            response.redirect(`/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`)
-        }).catch(e => {
-            console.error(e);
-
-			just.render('error', { error: e	}, function(error, html) {
-				if (error) {
-					console.error(error);
-					next(error);
-				} else {
-					response.send(html);
-				}
-			});
-        });
-    } catch (e) {
-        console.error(e);
-        next(e);
-    }
-});
+server.post('/', app.submitOrder);
 
 /*
  * GET /receipt
