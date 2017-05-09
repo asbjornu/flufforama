@@ -22,7 +22,7 @@ server.use(bodyParser.urlencoded({ extended: false }));
  * one Payment Session for each fluffy animal.
  *
  */
-server.get('/', app.index);
+server.get('/', app.showIndex);
 
 /*
  * POST /
@@ -43,7 +43,7 @@ server.post('/', app.submitOrder);
  * displaying the status about the captured payment.
  *
  */
-server.get('/receipt', app.receipt);
+server.get('/receipt', app.showReceipt);
 
 /*
  * Starts the web application.

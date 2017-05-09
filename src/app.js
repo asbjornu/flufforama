@@ -5,9 +5,9 @@ var server = null;
 
 module.exports = {
     start: start,
-    index: index,
+    showIndex: showIndex,
     submitOrder: submitOrder,
-    receipt: receipt,
+    showReceipt: showReceipt,
 }
 
 /*
@@ -18,7 +18,7 @@ module.exports = {
  * one Payment Session for each fluffy animal.
  *
  */
-function index(request, response, next) {
+function showIndex(request, response, next) {
     try {
         const checkout = server.locals.payexCheckout;
         const createPaymentSessions = paymentSession
@@ -83,7 +83,7 @@ function submitOrder(request, response, next) {
  * displaying the status about the captured payment.
  *
  */
-function receipt(request, response, next) {
+function showReceipt(request, response, next) {
     try {
         var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
 		var model = {
