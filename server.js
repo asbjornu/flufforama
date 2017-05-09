@@ -5,13 +5,14 @@ const logger = require('morgan');
 const bodyParser = require("body-parser");
 const payexCheckout = require('./src/payex.checkout');
 const paymentSession = require('./src/paymentsession');
+const app = require('./src/app');
 const JUST = require('just');
 const just = new JUST({ root: __dirname + '/src/views/', useCache: true, ext: '.jsp', watchForChanges: true });
-const app = express();
+const server = express();
 
-app.use(logger('dev'));
-app.use(express.static(__dirname + '/static'));
-app.use(bodyParser.urlencoded({ extended: false }));
+server.use(logger('dev'));
+server.use(express.static(__dirname + '/static'));
+server.use(bodyParser.urlencoded({ extended: false }));
 
 /*
  * GET /
@@ -21,9 +22,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
  * one Payment Session for each fluffy animal.
  *
  */
-app.get('/', (request, response, next) => {
+server.get('/', (request, response, next) => {
     try {
-        const checkout = app.locals.payexCheckout;
+        const checkout = server.locals.payexCheckout;
         const createPaymentSessions = paymentSession
             .initialize()
             .map(checkout.createPaymentSession)
@@ -50,7 +51,7 @@ app.get('/', (request, response, next) => {
 			});
         });
     } catch (e) {
-		console.error(error);
+		console.error(e);
         next(e);
     }
 });
@@ -65,9 +66,9 @@ app.get('/', (request, response, next) => {
  * Performs capture on the created Payment and redirects to the receipt.
  *
  */
-app.post('/', (request, response, next) => {
+server.post('/', (request, response, next) => {
     try {
-        const checkout = app.locals.payexCheckout;
+        const checkout = server.locals.payexCheckout;
         const paymentSession = request.body.paymentSession;
 
         checkout.capture(paymentSession).then(result => {
@@ -85,7 +86,7 @@ app.post('/', (request, response, next) => {
 			});
         });
     } catch (e) {
-		console.error(error);
+        console.error(e);
         next(e);
     }
 });
@@ -97,7 +98,7 @@ app.post('/', (request, response, next) => {
  * displaying the status about the captured payment.
  *
  */
-app.get('/receipt', (request, response, next) => {
+server.get('/receipt', (request, response, next) => {
     try {
         var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
 		var model = {
@@ -114,7 +115,7 @@ app.get('/receipt', (request, response, next) => {
 			}
 		});
     } catch (e) {
-		console.error(error);
+        console.error(e);
         next(e)
     }
 });
@@ -126,15 +127,4 @@ app.get('/receipt', (request, response, next) => {
  * against PayEx Checkout.
  *
  */
-app.listen(process.env.PORT || 3000, () => {
-    var accessToken = process.env.ACCESS_TOKEN;
-    if (!accessToken) {
-        console.error('No access token configured. Have you created an .env file with ACCESS_TOKEN=<ACCESS_TOKEN> in it?');
-        accessToken = '<NO_ACCESS_TOKEN_CONFIGURED>';
-    }
-    console.log(`Bootstrapping with Access Token: ${accessToken}.`)
-    console.log('Listening on http://localhost:' + (process.env.PORT || 3000))
-    payexCheckout(process.env.ACCESS_TOKEN).then(init => {
-        app.locals.payexCheckout = init;
-    });
-});
+app.start(server);
