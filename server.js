@@ -1,13 +1,7 @@
-require('dotenv').config();
-
 const express = require('express');
 const logger = require('morgan');
 const bodyParser = require("body-parser");
-const payexCheckout = require('./src/payex.checkout');
-const paymentSession = require('./src/paymentsession');
 const app = require('./src/app');
-const JUST = require('just');
-const just = new JUST({ root: __dirname + '/src/views/', useCache: true, ext: '.jsp', watchForChanges: true });
 const server = express();
 
 server.use(logger('dev'));

@@ -107,6 +107,7 @@ function showReceipt(request, response, next) {
  */
 function start(s) {
     server = s;
+    require('dotenv').config();
     var accessToken = process.env.ACCESS_TOKEN;
     if (!accessToken) {
         console.error('No access token configured. Have you created an .env file with ACCESS_TOKEN=<ACCESS_TOKEN> in it?');
