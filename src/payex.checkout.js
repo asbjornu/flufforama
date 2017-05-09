@@ -23,11 +23,22 @@ var accessToken = null;
 module.exports = at => {
     accessToken = at;
 
-    return new Promise((resolve, reject) => {
-        return resolve({
-            createPaymentSession: createPaymentSession,
+	// Fetch the root URL of the PayEx Checkout API to retrieve the URL
+	// we should POST the Payment Session request to.
+    return fetch('https://api.externalintegration.payex.com/psp/checkout', {
+        headers: {
+            authorization: 'Bearer ' + accessToken
+        }
+    }).then(res => {
+        return res.json();
+    }).then(json => {
+        jsome(json);
+        paymentSessionCreationUrl = json.paymentSession;
+
+        return {
+            createPaymentSession : createPaymentSession,
             capture: capture
-        });
+        };
     });
 }
 
