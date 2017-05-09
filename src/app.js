@@ -7,6 +7,7 @@ module.exports = {
     start: start,
     index: index,
     submitOrder: submitOrder,
+    receipt: receipt,
 }
 
 /*
@@ -69,6 +70,28 @@ function submitOrder(request, response, next) {
             };
             view.render('error', model, response, next);
         });
+    } catch (e) {
+        console.error(e);
+        next(e);
+    }
+}
+
+/*
+ * Handles the rendering of the receipt page.
+ *
+ * After the POST performing capture is complete, it redirects to this page,
+ * displaying the status about the captured payment.
+ *
+ */
+function receipt(request, response, next) {
+    try {
+        var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
+		var model = {
+            paymentSession: request.query.ps,
+            state: request.query.state,
+            amount: amount
+        };
+		view.render('receipt', model, response, next);
     } catch (e) {
         console.error(e);
         next(e);

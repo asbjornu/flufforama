@@ -43,27 +43,7 @@ server.post('/', app.submitOrder);
  * displaying the status about the captured payment.
  *
  */
-server.get('/receipt', (request, response, next) => {
-    try {
-        var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
-		var model = {
-            paymentSession: request.query.ps,
-            state: request.query.state,
-            amount: amount
-        };
-		just.render('receipt', model, function(error, html) {
-			if (error) {
-				console.error(error);
-				next(error);
-			} else {
-				response.send(html);
-			}
-		});
-    } catch (e) {
-        console.error(e);
-        next(e)
-    }
-});
+server.get('/receipt', app.receipt);
 
 /*
  * Starts the web application.
