@@ -54,11 +54,30 @@ function createPaymentSession(request) {
     console.log(`Setting up creation of Payment Session ${request.reference}:`);
     jsome(request);
 
-    return new Promise((resolve, reject) => {
-        return resolve({
-            id: 'https://implement.me/',
-            amount: request.amount
-        })
+	// Perform an HTTP POST request to the previously retrieved URL to create
+	// a new Payment Session.
+    return fetch(paymentSessionCreationUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + accessToken,
+            'Content-Type': 'application/json'
+        },
+        body : JSON.stringify(request)
+    }).then(result => {
+        console.log(`Payment Session ${request.reference} POST completed with HTTP status ${result.status}.`)
+        if (result.status != 201) {
+            throw `Error ${result.status}`;
+        }
+
+        return result.json();
+    }).then(json => {
+        jsome(json);
+        return json;
+    }).catch(e => {
+        console.error(`Payment Session ${request.reference} POST failed:`, e)
+		// TODO: We shouldn't have to return null;
+		//       all Payment Session POSTs should succeed.
+		return null;
     });
 }
 
