@@ -54,16 +54,9 @@ function showIndex(request, response, next) {
                 paymentSessions: paymentSessions
             };
             view.render('index', model, response, next);
-        }).catch(e => {
-            console.error(e);
-            var model = {
-                error: e
-            };
-            view.render('error', model, response, next);
-        });
-    } catch (e) {
-		console.error(e);
-        next(e);
+        }).catch(error => showError(error, response, next));
+    } catch (error) {
+        showError(error, response, next);
     }
 }
 
@@ -87,16 +80,9 @@ function submitOrder(request, response, next) {
             const url = `/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`;
             console.log('Redirecting to:', url);
             response.redirect(url);
-        }).catch(e => {
-            console.error(e);
-            var model = {
-                error: e
-            };
-            view.render('error', model, response, next);
-        });
-    } catch (e) {
-        console.error(e);
-        next(e);
+        }).catch(error => showError(error, response, next));
+    } catch (error) {
+        showError(error, response, next);
     }
 }
 
@@ -109,13 +95,29 @@ function submitOrder(request, response, next) {
  */
 function showReceipt(request, response, next) {
     try {
-        var amount = parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2);
 		var model = {
             paymentSession: request.query.ps,
             state: request.query.state,
-            amount: amount
+            amount: parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2)
         };
 		view.render('receipt', model, response, next);
+    } catch (error) {
+        showError(error, response, next);
+    }
+}
+
+/*
+ * Handles the rendering of an error.
+ *
+ */
+function showError(error, response, next) {
+    console.error(error);
+
+    try {
+        var model = {
+            error: error
+        };
+        view.render('error', model, response, next);
     } catch (e) {
         console.error(e);
         next(e);
