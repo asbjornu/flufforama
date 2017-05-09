@@ -23,6 +23,8 @@ var accessToken = null;
 module.exports = at => {
     accessToken = at;
 
+	// Fetch the root URL of the PayEx Checkout API to retrieve the URL
+	// we should POST the Payment Session request to.
     return fetch('https://api.externalintegration.payex.com/psp/checkout', {
         headers: {
             authorization: 'Bearer ' + accessToken
@@ -52,6 +54,8 @@ function createPaymentSession(request) {
     console.log(`Setting up creation of Payment Session ${request.reference}:`);
     jsome(request);
 
+	// Perform an HTTP POST request to the previously retrieved URL to create
+	// a new Payment Session.
     return fetch(paymentSessionCreationUrl, {
         method: 'POST',
         headers: {
@@ -86,6 +90,7 @@ function createPaymentSession(request) {
   *
   */
 function capture(paymentSession) {
+	// First GET the Payment Session to retrieve its current state.
     return fetch(paymentSession, {
         headers: {
             'Authorization': 'Bearer ' + accessToken
@@ -99,8 +104,11 @@ function capture(paymentSession) {
         return result.json();
     }).then(json => {
         jsome(json);
+		// Retrieve the `payment` property; a URL pointing to the Payment that
+		// has been created during the PayEx Checkout user flow.
         return json.payment;
     }).then(paymentUrl => {
+		// Perform an HTTP GET request on the Payment URL to retrieve its current state.
         return fetch(paymentUrl, {
             headers: {
                 'Authorization': 'Bearer ' + accessToken
@@ -116,13 +124,17 @@ function capture(paymentSession) {
     }).then(json => {
         jsome(json);
 
+		// Find the `create-checkout-capture` operation in the returned Payment
         var captureOperation = json.operations.filter(x => x.rel == 'create-checkout-capture');
         if (captureOperation.length == 0) {
             throw `Payment ${json.payment.id} had no capture operation`;
         }
 
+		// The `create-checkout-capture` operation's `href` contains the URL
+		// we should POST the capture request to.
         var captureOperationUrl = captureOperation[0].href;
 
+		// Perform the HTTP POST request to capture the Payment.
         return fetch(captureOperationUrl, {
             method: 'POST',
             headers: {
