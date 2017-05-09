@@ -16,9 +16,11 @@ module.exports = {
  * Bootstraps with the environment variable ACCESS_TOKEN, used to authorize
  * against PayEx Checkout.
  *
+ * @param express The Express server object.
+ *
  */
-function start(s) {
-    server = s;
+function start(express) {
+    server = express;
     require('dotenv').config();
     var accessToken = process.env.ACCESS_TOKEN;
     if (!accessToken) {
@@ -28,8 +30,8 @@ function start(s) {
     console.log(`Bootstrapping with Access Token: ${accessToken}.`)
     payexCheckout(process.env.ACCESS_TOKEN).then(init => {
         var port = process.env.PORT || 3000;
-        s.locals.payexCheckout = init;
-        s.listen(port, () => {
+        express.locals.payexCheckout = init;
+        express.listen(port, () => {
             console.log('Listening on http://localhost:' + port);
         });
     });
