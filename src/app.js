@@ -27,9 +27,10 @@ function start(s) {
     }
     console.log(`Bootstrapping with Access Token: ${accessToken}.`)
     payexCheckout(process.env.ACCESS_TOKEN).then(init => {
+        var port = process.env.PORT || 3000;
         s.locals.payexCheckout = init;
-        s.listen(process.env.PORT || 3000, () => {
-            console.log('Listening on http://localhost:' + (process.env.PORT || 3000))
+        s.listen(port, () => {
+            console.log('Listening on http://localhost:' + port);
         });
     });
 }
