@@ -22,39 +22,7 @@ server.use(bodyParser.urlencoded({ extended: false }));
  * one Payment Session for each fluffy animal.
  *
  */
-server.get('/', (request, response, next) => {
-    try {
-        const checkout = server.locals.payexCheckout;
-        const createPaymentSessions = paymentSession
-            .initialize()
-            .map(checkout.createPaymentSession)
-
-        Promise.all(createPaymentSessions).then(paymentSessions => {
-			just.render('index', { paymentSessions: paymentSessions	}, function(error, html) {
-				if (error) {
-					console.error(error);
-					next(error);
-				} else {
-					response.send(html);
-				}
-			});
-        }).catch(e => {
-            console.error(e);
-
-			just.render('error', { error: e }, function(error, html) {
-				if (error) {
-					console.error(error);
-					next(error);
-				} else {
-					response.send(html);
-				}
-			});
-        });
-    } catch (e) {
-		console.error(e);
-        next(e);
-    }
-});
+server.get('/', app.index);
 
 /*
  * POST /
