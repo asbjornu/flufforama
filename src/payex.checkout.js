@@ -7,7 +7,7 @@
   */
 const fetch = require('node-fetch');
 const jsome = require('jsome');
-var paymentSessionCreationUrl = null;
+var viewConsumerIdentification = null;
 var accessToken = null;
 
 /**
@@ -17,7 +17,7 @@ var accessToken = null;
   * @constructor
   * @export
   * @param at The Access Token that should be used to authorize the HTTP requests performed against PayEx.
-  * @return An object containing the methods createPaymentSession() and capture().
+  * @return An object containing the methods createPaymentOrder() and capture().
   *
   */
 module.exports = at => {
@@ -40,11 +40,16 @@ module.exports = at => {
         return res.json();
     }).then(json => {
         jsome(json);
-        paymentSessionCreationUrl = json.paymentSession;
+
+        var token = json.token;
+
+        viewConsumerIdentification = json.operations.find(o => o.rel === 'view-consumerpage').href;
+
+        console.log(viewConsumerIdentification);
 
         return {
-            createPaymentSession : createPaymentSession,
-            capture: capture
+            token: token,
+            viewConsumerIdentification : viewConsumerIdentification
         };
     }).catch(error => {
         console.error(error);
@@ -54,18 +59,18 @@ module.exports = at => {
 /**
   * Creates a Payment Session.
   *
-  * @export createPaymentSession
+  * @export createPaymentOrder
   * @param request The request object that will create the Payment Session.
   * @return A Promise that, when fulfilled, will return the URL of the created Payment Session.
   *
   */
-function createPaymentSession(request) {
+function createPaymentOrder(request) {
     console.log(`Setting up creation of Payment Session ${request.reference}:`);
     jsome(request);
 
 	// Perform an HTTP POST request to the previously retrieved URL to create
 	// a new Payment Session.
-    return fetch(paymentSessionCreationUrl, {
+    return fetch(viewConsumerIdentification, {
         method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + accessToken,
@@ -94,18 +99,18 @@ function createPaymentSession(request) {
   * Captures a Payment Session.
   *
   * @export capture
-  * @param paymentSession The URL of the Payment Session to capture.
+  * @param paymentOrder The URL of the Payment Session to capture.
   * @return A Promise that, when fulfilled, will return an object containing the amount and state of the captured payment.
   *
   */
-function capture(paymentSession) {
+function capture(paymentOrder) {
 	// First GET the Payment Session to retrieve its current state.
-    return fetch(paymentSession, {
+    return fetch(paymentOrder, {
         headers: {
             'Authorization': 'Bearer ' + accessToken
         }
     }).then(result => {
-        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        console.log(`GET ${paymentOrder} completed with HTTP status ${result.status}.`)
         if (result.status != 200) {
             throw `Error ${result.status}`;
         }
@@ -124,7 +129,7 @@ function capture(paymentSession) {
             }
         });
     }).then(result => {
-        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        console.log(`GET ${paymentOrder} completed with HTTP status ${result.status}.`)
         if (result.status != 200) {
             throw `Error ${result.status}`;
         }

@@ -26,7 +26,7 @@ server.get('/', app.showIndex);
   * POST /
   *
   * Invoked after the PayEx Checkout is complete. The posted form will have
-  * `paymentSession` as a hidden field, containing the URL of the Payment
+  * `paymentOrder` as a hidden field, containing the URL of the Payment
   * Session that was purchased.
   *
   * Performs capture on the created Payment and redirects to the receipt.

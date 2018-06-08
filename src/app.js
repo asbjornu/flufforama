@@ -5,7 +5,7 @@
   *
   */
 const payexCheckout = require('./payex.checkout');
-const paymentSession = require('./paymentsession');
+const paymentOrder = require('./paymentorder');
 const view = require('./view');
 var server = null;
 
@@ -55,13 +55,13 @@ module.exports.start = express => {
 module.exports.showIndex = (request, response, next) => {
     try {
         const checkout = server.locals.payexCheckout;
-        const createPaymentSessions = paymentSession
+        const createPaymentOrders = paymentOrder
             .initialize()
-            .map(checkout.createPaymentSession)
+            .map(checkout.createPaymentOrder)
 
-        Promise.all(createPaymentSessions).then(paymentSessions => {
+        Promise.all(createPaymentOrders).then(paymentOrders => {
             var model = {
-                paymentSessions: paymentSessions
+                paymentOrders: paymentOrders
             };
             view.render('index', model, response, next);
         }).catch(error => showError(error, response, next));
@@ -75,7 +75,7 @@ module.exports.showIndex = (request, response, next) => {
   * Handles the submission of the order.
   *
   * Invoked after the PayEx Checkout is complete. The posted form will have
-  * `paymentSession` as a hidden field, containing the URL of the Payment
+  * `paymentOrder` as a hidden field, containing the URL of the Payment
   * Session that was purchased.
   *
   * Performs capture on the created Payment and redirects to the receipt.
@@ -90,10 +90,10 @@ module.exports.showIndex = (request, response, next) => {
 module.exports.submitOrder = (request, response, next) => {
     try {
         const checkout = server.locals.payexCheckout;
-        const paymentSession = request.body.paymentSession;
+        const paymentOrder = request.body.paymentOrder;
 
-        checkout.capture(paymentSession).then(result => {
-            const url = `/receipt?ps=${paymentSession}&state=${result.state}&amount=${result.amount}`;
+        checkout.capture(paymentOrder).then(result => {
+            const url = `/receipt?ps=${paymentOrder}&state=${result.state}&amount=${result.amount}`;
             console.log('Redirecting to:', url);
             response.redirect(url);
         }).catch(error => showError(error, response, next));
@@ -118,7 +118,7 @@ module.exports.submitOrder = (request, response, next) => {
 module.exports.showReceipt = (request, response, next) => {
     try {
 		var model = {
-            paymentSession: request.query.ps,
+            paymentOrder: request.query.ps,
             state: request.query.state,
             amount: parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2)
         };

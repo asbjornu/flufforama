@@ -6,14 +6,14 @@
   flufforama delivered today!
 </p>
 
-<%| paymentSessions paymentSession %>
+<%| paymentOrders paymentOrder %>
 	<form method="post">
-		<input type="hidden" name="paymentSession" value="<%= paymentSession.id %>">
-		<button type="submit" data-payex-checkout="<%= paymentSession.id %>" disabled>
+		<input type="hidden" name="paymentOrder" value="<%= paymentOrder.id %>">
+		<button type="submit" data-payex-checkout="<%= paymentOrder.id %>" disabled>
 			<span>
 				Buy now for only <br>
-				<%= paymentSession.currency %>
-				<%= parseFloat(Math.round(paymentSession.amount * 100) / 100).toFixed(2) %>
+				<%= paymentOrder.currency %>
+				<%= parseFloat(Math.round(paymentOrder.amount * 100) / 100).toFixed(2) %>
 			</span>
 		</button>
 	</form>

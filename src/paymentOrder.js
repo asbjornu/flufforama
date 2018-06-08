@@ -1,31 +1,31 @@
 /**
-  * The Payment Session module, used to create PaymentSession objects.
+  * The Payment Session module, used to create PaymentOrder objects.
   *
-  * @module paymentsession
+  * @module paymentOrder
   *
   */
 
 /**
-  * Initializes and returns 8 PaymentSession objects.
+  * Initializes and returns 8 PaymentOrder objects.
   *
   * @export initialize
-  * @return 8 PaymentSession objects
+  * @return 8 PaymentOrder objects
   */
 module.exports.initialize = () => {
 	return new Array(8)
 		.fill()
 		.map((_, i) => i + 1)
-		.map(initializePaymentSession)
+		.map(initializePaymentOrder)
 };
 
 /**
-  * Creates a PaymentSession object.
+  * Initializes a PaymentOrder object.
   *
   * @private
   * @param item The item number to create.
-  * @return A PaymentSession object.
+  * @return A PaymentOrder object.
   */
-function initializePaymentSession(item) {
+function initializePaymentOrder(item) {
     var amounts = getRandomAmounts(item);
 
 	return {
