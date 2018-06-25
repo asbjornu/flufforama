@@ -17,7 +17,7 @@ server.use(bodyParser.urlencoded({ extended: false }));
   *
   * The home page, displaying the fluffy animals you can buy.
   * Should perform a series of POST requests to PayEx Checkout to create
-  * one Payment Session for each fluffy animal.
+  * one Payment Order for each fluffy animal.
   *
   */
 server.get('/', app.showIndex);

@@ -43,7 +43,7 @@ module.exports.start = express => {
   *
   * Shows the index page, displaying the fluffy animals you can buy.
   * Should perform a series of POST requests to PayEx Checkout to create
-  * one Payment Session for each fluffy animal.
+  * one Payment Order for each fluffy animal.
   *
   * @export showIndex
   * @param request The Express Request object.
@@ -55,16 +55,7 @@ module.exports.start = express => {
 module.exports.showIndex = (request, response, next) => {
     try {
         const checkout = server.locals.payexCheckout;
-        const createPaymentOrders = paymentOrder
-            .initialize()
-            .map(checkout.createPaymentOrder)
-
-        Promise.all(createPaymentOrders).then(paymentOrders => {
-            var model = {
-                paymentOrders: paymentOrders
-            };
-            view.render('index', model, response, next);
-        }).catch(error => showError(error, response, next));
+        view.render('index', checkout.operation, response, next);
     } catch (error) {
         showError(error, response, next);
     }

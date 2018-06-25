@@ -2,8 +2,8 @@
 <html>
     <head>
         <link rel="stylesheet" href="/css/index.css">
-        <script src="https://ecom.externalintegration.payex.com/checkout/Content/js/payex-checkout.min.js"></script>
         <title>Flufforama</title>
+        <%* head %>
     </head>
     <body>
         <header>
