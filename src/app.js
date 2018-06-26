@@ -81,13 +81,9 @@ module.exports.showIndex = (request, response, next) => {
 module.exports.submitOrder = (request, response, next) => {
     try {
         const checkout = server.locals.payexCheckout;
-        const paymentOrder = request.body.paymentOrder;
-
-        checkout.capture(paymentOrder).then(result => {
-            const url = `/receipt?ps=${paymentOrder}&state=${result.state}&amount=${result.amount}`;
-            console.log('Redirecting to:', url);
-            response.redirect(url);
-        }).catch(error => showError(error, response, next));
+        const consumerProfileRef = request.body.consumerProfileRef;
+        console.log(consumerProfileRef);
+        response.status(201).json({ consumerProfileRef });
     } catch (error) {
         showError(error, response, next);
     }
