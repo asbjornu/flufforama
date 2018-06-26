@@ -1,6 +1,7 @@
 <%! layout %>
 <%[ end %>
-	<script src= "<%= href %>" data-payex-hostedview="checkin" data-payex-hostedview-culture="nb-NO"></script>
+	<script src="<%= href %>"></script>
+  <script src="js/fluff.js"></script>
 <%]%>
 
 <p>
