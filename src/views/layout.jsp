@@ -3,7 +3,6 @@
     <head>
         <link rel="stylesheet" href="/css/index.css">
         <title>Flufforama</title>
-        <%* head %>
     </head>
     <body>
         <header>
@@ -18,5 +17,6 @@
         <footer>
             <p>Copyright © 2017 PayEx</p>
         </footer>
+        <%* end %>
     </body>
 </html>
