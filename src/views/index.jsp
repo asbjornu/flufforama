@@ -1,6 +1,6 @@
 <%! layout %>
 <%[ end %>
-	<script src= "<%= href %>" data-payex-hostedview="consumer"></script>
+	<script src= "<%= href %>" data-payex-hostedview="checkin"></script>
 <%]%>
 
 <p>
@@ -9,4 +9,4 @@
   flufforama delivered today!
 </p>
 
-<div id="consumer" style="width: 500px"></div>
+<div id="checkin" style="width: 500px"></div>
