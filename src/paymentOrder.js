@@ -1,4 +1,4 @@
-const uuid = require('uuid/v5');
+const uuid = require('uuid/v1');
 const sha256 = require('sha256');
 
 /**
@@ -19,7 +19,7 @@ const sha256 = require('sha256');
  */
 module.exports = function(hostUrl, userAgent, consumerProfileRef, payeeId) {
   const amounts = getRandomAmounts();
-  const payeeReference = sha256(uuid(hostUrl, uuid.URL)).substring(0, 5);
+  const payeeReference = sha256(uuid()).substring(0, 6);
 
   return {
     "paymentorder": {

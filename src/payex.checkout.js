@@ -111,7 +111,12 @@ function createPaymentOrder(paymentOrder) {
             throw `Error ${status}`;
         }
 
-        return json.paymentOrder;
+        var operation = json.operations.find(o => o.rel === 'view-paymentorder');
+
+        return {
+            id: json.paymentOrder.id,
+            operation: operation
+        };
     }).catch(e => {
         console.error(`Payment Order ${reference} POST failed:`, e)
 		// TODO: We shouldn't have to return null;
