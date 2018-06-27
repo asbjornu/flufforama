@@ -51,12 +51,11 @@ module.exports = function(hostUrl, consumerProfileRef, payeeId) {
  * Gets an object containing a random amount and VAT amount.
  *
  * @private
- * @param item The item number to use in the calculation of amounts.
  * @return An object containing a random amount and VAT amount.
  */
-function getRandomAmounts(item) {
+function getRandomAmounts() {
   var r = parseFloat(Math.round(Math.random() * 100) / 100).toFixed(2);
-  var a = Math.random() * item * 223;
+  var a = Math.random() * 223;
   var grossAmount = parseFloat(Math.round(a * 100) / 100).toFixed(1);
   var vatRate = 25;
   var vatFactor = 1 + (vatRate / 100);
@@ -65,7 +64,7 @@ function getRandomAmounts(item) {
   var vatAmount = parseFloat(Math.round(v * 100) / 100).toFixed(2);
 
   return {
-    amount: grossAmount,
-    vatAmount: vatAmount
+    amount: parseInt(grossAmount * 100),
+    vatAmount: parseInt(vatAmount * 100)
   };
 }
