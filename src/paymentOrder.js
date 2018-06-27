@@ -17,7 +17,7 @@ const sha256 = require('sha256');
  * @param payeeId The ID of the payee.
  * @return A PaymentOrder object.
  */
-module.exports = function(hostUrl, consumerProfileRef, payeeId) {
+module.exports = function(hostUrl, userAgent, consumerProfileRef, payeeId) {
   const amounts = getRandomAmounts();
   const payeeReference = sha256(uuid(hostUrl, uuid.URL)).substring(0, 5);
 
@@ -29,6 +29,7 @@ module.exports = function(hostUrl, consumerProfileRef, payeeId) {
         "vatAmount": amounts.vatAmount,
         "description": "Test Purchase",
         "language": "nb-NO",
+        "userAgent": userAgent,
         "urls": {
             "hostUrls": [ hostUrl ],
             "completeUrl": hostUrl + "/payment-completed",

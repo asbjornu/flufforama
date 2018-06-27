@@ -97,8 +97,8 @@ module.exports.submitOrder = (request, response, next) => {
             hostname: request.hostname,
             port: request.socket.localPort
         });
-        
-        const paymentOrder = new PaymentOrder(hostUrl, consumerProfileRef, request.app.locals.payeeId);
+        const userAgent = request.get('User-Agent');
+        const paymentOrder = new PaymentOrder(hostUrl, userAgent, consumerProfileRef, request.app.locals.payeeId);
 
         checkout.createPaymentOrder(paymentOrder).then(po => {
             response.status(201).json(po);
