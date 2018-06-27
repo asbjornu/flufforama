@@ -1,3 +1,6 @@
+const uuid = require('uuid/v5');
+const sha256 = require('sha256');
+
 /**
  * The Payment Order module, used to create PaymentOrder objects.
  *
@@ -6,56 +9,42 @@
  */
 
 /**
- * Initializes and returns 8 PaymentOrder objects.
- *
- * @export initialize
- * @return 8 PaymentOrder objects
- */
-module.exports.initialize = () => {
-  return new Array(8)
-    .fill()
-    .map((_, i) => i + 1)
-    .map(initializePaymentOrder)
-};
-
-/**
  * Initializes a PaymentOrder object.
  *
  * @private
- * @param item The item number to create.
+ * @param hostUrl The URL of the host.
+ * @param consumerProfileRef The reference to the consumer profile.
+ * @param payeeId The ID of the payee.
  * @return A PaymentOrder object.
  */
-function initializePaymentOrder(item) {
-  var amounts = getRandomAmounts(item);
+module.exports = function(hostUrl, consumerProfileRef, payeeId) {
+  const amounts = getRandomAmounts();
+  const payeeReference = sha256(uuid(hostUrl, uuid.URL)).substring(0, 5);
 
   return {
     "paymentorder": {
-      "operation": "Purchase",
-      "currency": "NOK",
-      "amount": amounts.amount,
-      "vatAmount": amounts.vatAmount,
-      "description": "Test Purchase",
-      "userAgent": "Mozilla/5.0...",
-      "language": "nb-NO",
-      "urls": {
-        "hostUrls": [ "http://test-dummy.net", "http://test-dummy2.net" ],
-        "completeUrl": "http://test-dummy.net/payment-completed",
-        "cancelUrl": "http://test-dummy.net/payment-canceled",
-        "callbackUrl": "http://test-dummy.net/payment-callback",
-        "termsOfServiceUrl": "http://test-dummy.net/termsandconditoons.pdf",
-        "logoUrl": "http://test-dummy.net/logo.png"
-      },
-      "payeeInfo": {
-        "payeeId": "12345678-1234-1234-1234-123456789012",
-        "payeeReference": "CD1234",
-        "payeeName": "Merchant1",
-        "productCategory": "A123"
-      },
-      "payer": {
-        "consumerProfileRef": "5adc265ff87f4313577e08d3dca1a26d",
-      }
+        "operation": "Purchase",
+        "currency": "NOK",
+        "amount": amounts.amount,
+        "vatAmount": amounts.vatAmount,
+        "description": "Test Purchase",
+        "language": "nb-NO",
+        "urls": {
+            "hostUrls": [ hostUrl ],
+            "completeUrl": hostUrl + "/payment-completed",
+            "cancelUrl": hostUrl + "/payment-canceled",
+            "callbackUrl": hostUrl + "/payment-callback",
+            "termsOfServiceUrl": hostUrl + "/termsandconditoons.pdf"
+        },
+        "payeeInfo": {
+            "payeeId": payeeId,
+            "payeeReference": payeeReference,
+        },
+        "payer": {
+            "consumerProfileRef": consumerProfileRef
+        }
     }
-  }
+}
 }
 
 /**

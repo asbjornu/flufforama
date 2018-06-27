@@ -10,7 +10,7 @@ const server = express();
 
 server.use(logger('dev'));
 server.use(express.static(__dirname + '/static'));
-server.use(bodyParser.urlencoded({ extended: false }));
+server.use(bodyParser.json());
 
 /**
   * GET /

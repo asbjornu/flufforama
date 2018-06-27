@@ -4,9 +4,11 @@
   * @module app
   *
   */
-const payexCheckout = require('./payex.checkout');
-const paymentOrder = require('./paymentorder');
+const PayexCheckout = require('./payex.checkout');
+const PaymentOrder = require('./paymentorder');
+const jsome = require('jsome');
 const view = require('./view');
+const url = require('url');
 var server = null;
 
 /**
@@ -24,12 +26,18 @@ module.exports.start = express => {
     server = express;
     require('dotenv').config();
     var accessToken = process.env.ACCESS_TOKEN;
+    var payeeId = process.env.PAYEE_ID;
     if (!accessToken) {
         console.error('No access token configured. Have you created an .env file with ACCESS_TOKEN=<ACCESS_TOKEN> in it?');
         accessToken = '<NO_ACCESS_TOKEN_CONFIGURED>';
     }
-    console.log(`Bootstrapping with Access Token: ${accessToken}.`)
-    payexCheckout(process.env.ACCESS_TOKEN).then(init => {
+    if (!payeeId) {
+        console.error('No payee ID configured. Have you created an .env file with PAYEE_ID=<PAYEE_ID> in it?');
+        accessToken = '<NO_PAYEE_ID_CONFIGURED>';
+    }
+    console.log(`Bootstrapping with Access Token '${accessToken}' and Payee ID '${payeeId}'.`)
+    express.locals.payeeId = payeeId;
+    PayexCheckout(process.env.ACCESS_TOKEN).then(init => {
         var port = process.env.PORT || 3000;
         express.locals.payexCheckout = init;
         express.listen(port, () => {
@@ -80,9 +88,22 @@ module.exports.showIndex = (request, response, next) => {
   */
 module.exports.submitOrder = (request, response, next) => {
     try {
+        jsome(request.body);
+
         const checkout = server.locals.payexCheckout;
         const consumerProfileRef = request.body.consumerProfileRef;
-        console.log(consumerProfileRef);
+        const hostUrl = url.format({
+            protocol: request.protocol,
+            hostname: request.hostname,
+            port: request.socket.localPort
+        });
+        
+        const paymentOrder = new PaymentOrder(hostUrl, consumerProfileRef, request.app.locals.payeeId);
+
+        jsome(paymentOrder);
+
+        // TODO: fetch() the payment order.
+
         response.status(201).json({ consumerProfileRef });
     } catch (error) {
         showError(error, response, next);

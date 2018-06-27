@@ -5,12 +5,11 @@ payex.hostedView.consumer({
         console.log(consumerEvent);
 
         var request = new XMLHttpRequest();
-        request.addEventListener('load', function(response) {
-            console.log(response);
+        request.addEventListener('load', function() {
             console.log(this.responseText);
         });
-        request.open('POST', window.location.href);
-        request.setRequestHeader('Content-Type', 'application/json');
+        request.open('POST', window.location.href, true);
+        request.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
         request.send(JSON.stringify(consumerEvent));
     }
 }).open();
