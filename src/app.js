@@ -43,6 +43,8 @@ module.exports.start = express => {
         express.listen(port, () => {
             console.log('Listening on http://localhost:' + port);
         });
+    }).catch(error => {
+        console.error(error);
     });
 };
 

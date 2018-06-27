@@ -23,6 +23,7 @@ var accessToken = null;
 module.exports = at => {
     accessToken = at;
 
+    var status = 0;
     const request = {
         "operation": "initiate-consumer-session",
         "msisdn": "+4798765432",
@@ -43,10 +44,21 @@ module.exports = at => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(request)
-    }).then(res => {
-        return res.json();
+    }).then(result => {
+        status = result.status;
+        const contentType = result.headers.get('Content-Type');
+
+        if (contentType.indexOf('json') > 0) {
+            return result.json();
+        }
+
+        throw `Invalid content type '${contentType}'`;
     }).then(json => {
         jsome(json);
+        
+        if (status != 200) {
+            throw `Invalid status ${status}`;
+        }
 
         var operation = json.operations.find(o => o.rel === 'view-consumer-identification');
 
@@ -55,8 +67,6 @@ module.exports = at => {
             createPaymentOrder : createPaymentOrder,
             capture: capture
         };
-    }).catch(error => {
-        console.error(error);
     });
 }
 
@@ -85,9 +95,9 @@ function createPaymentOrder(paymentOrder) {
         },
         body : JSON.stringify(paymentOrder)
     }).then(result => {
+        status = result.status;
         console.log(`Payment Order ${reference} POST completed with HTTP status ${result.status}.`)
         const contentType = result.headers.get('Content-Type');
-        status = result.status;
 
         if (contentType.indexOf('json') > 0) {
             return result.json();
