@@ -100,11 +100,11 @@ module.exports.submitOrder = (request, response, next) => {
         
         const paymentOrder = new PaymentOrder(hostUrl, consumerProfileRef, request.app.locals.payeeId);
 
-        jsome(paymentOrder);
-
-        // TODO: fetch() the payment order.
-
-        response.status(201).json({ consumerProfileRef });
+        checkout.createPaymentOrder(paymentOrder).then(po => {
+            response.status(201).json(po);
+        }).catch(error => {
+            throw error;
+        });
     } catch (error) {
         showError(error, response, next);
     }

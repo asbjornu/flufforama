@@ -64,13 +64,15 @@ module.exports = at => {
   * Creates a Payment Order.
   *
   * @export createPaymentOrder
-  * @param request The request object that will create the Payment Order.
+  * @param paymentOrder The request object that will create the Payment Order.
   * @return A Promise that, when fulfilled, will return the URL of the created Payment Order.
   *
   */
-function createPaymentOrder(request) {
-    console.log(`Setting up creation of Payment Order`);
-    jsome(request);
+function createPaymentOrder(paymentOrder) {
+    jsome(paymentOrder);
+
+    const reference = paymentOrder.paymentorder.payeeInfo.payeeReference;
+    console.log(`Setting up creation of Payment Order ${reference}`);
 
 	// Perform an HTTP POST request to the previously retrieved URL to create
 	// a new Payment Order.
@@ -80,9 +82,9 @@ function createPaymentOrder(request) {
             'Authorization': 'Bearer ' + accessToken,
             'Content-Type': 'application/json'
         },
-        body : JSON.stringify(request)
+        body : JSON.stringify(paymentOrder)
     }).then(result => {
-        console.log(`Payment Order ${request.reference} POST completed with HTTP status ${result.status}.`)
+        console.log(`Payment Order ${reference} POST completed with HTTP status ${result.status}.`)
         if (result.status != 201) {
             throw `Error ${result.status}`;
         }
@@ -92,7 +94,7 @@ function createPaymentOrder(request) {
         jsome(json);
         return json.paymentOrder;
     }).catch(e => {
-        console.error(`Payment Order POST failed:`, e)
+        console.error(`Payment Order ${reference} POST failed:`, e)
 		// TODO: We shouldn't have to return null;
 		//       all Payment Order POSTs should succeed.
 		return null;
