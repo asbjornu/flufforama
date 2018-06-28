@@ -1,19 +1,21 @@
 payex.hostedView.consumer({
     container: 'checkout',
     culture: 'nb-NO',
-    onConsumerIdentified: function(consumerIdentifiedEvent) {
+    onConsumerIdentified: function (consumerIdentifiedEvent) {
         var request = new XMLHttpRequest();
-        request.addEventListener('load', function() {
+        request.addEventListener('load', function () {
             response = JSON.parse(this.responseText);
 
             var script = document.createElement('script');
-            script.setAttribute('src', response.operation.href);        
-            script.onload = function() {
+            script.setAttribute('src', response.operation.href);
+            script.onload = function () {
+                var iframe = document.getElementsByTagName('iframe')[0];
+                iframe.parentElement.removeChild(iframe);
+                
                 payex.hostedView.paymentMenu({
                     container: 'checkout',
                     culture: 'nb-NO',
-                    onPaymentCompleted: function(e) {
-                        
+                    onPaymentCompleted: function (paymentCompletedEvent) {
                     }
                 }).open();
             };
