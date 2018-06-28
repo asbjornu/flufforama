@@ -10,5 +10,4 @@
   flufforama delivered today!
 </p>
 
-<div id="checkin" style="width: 500px"></div>
 <div id="checkout" style="width: 500px"></div>
