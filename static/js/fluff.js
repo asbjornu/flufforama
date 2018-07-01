@@ -5,17 +5,19 @@ payex.hostedView.consumer({
         var request = new XMLHttpRequest();
         request.addEventListener('load', function () {
             response = JSON.parse(this.responseText);
+            var paymentOrder = response.id;
 
             var script = document.createElement('script');
             script.setAttribute('src', response.operation.href);
             script.onload = function () {
                 var iframe = document.getElementsByTagName('iframe')[0];
                 iframe.parentElement.removeChild(iframe);
-                
+
                 payex.hostedView.paymentMenu({
                     container: 'checkout',
                     culture: 'nb-NO',
                     onPaymentCompleted: function (paymentCompletedEvent) {
+                        window.location.href = '/receipt?po=' + paymentOrder + '&state=' + paymentCompletedEvent.state;
                     }
                 }).open();
             };

@@ -127,12 +127,24 @@ module.exports.submitOrder = (request, response, next) => {
   */
 module.exports.showReceipt = (request, response, next) => {
     try {
-		var model = {
-            paymentOrder: request.query.ps,
-            state: request.query.state,
-            amount: parseFloat(Math.round(request.query.amount * 100) / 100).toFixed(2)
-        };
-		view.render('receipt', model, response, next);
+        const checkout = server.locals.payexCheckout;
+        var error = null;
+        checkout.capture(request.query.po).then(paymentOrder => {
+            var model = {
+                paymentOrder: paymentOrder.id,
+                state: paymentOrder.state,
+                amount: paymentOrder.amount
+            };
+
+            view.render('receipt', model, response, next);
+        }).catch(e => {
+            console.error(e);
+            error = e;
+        });
+
+        if (error != null) {
+            throw error;
+        }
     } catch (error) {
         showError(error, response, next);
     }

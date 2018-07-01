@@ -5,9 +5,10 @@
   * @module payex.checkout
   *
   */
+const baseUrl = 'https://api.stage.payex.com';
 const fetch = require('node-fetch');
 const jsome = require('jsome');
-var paymentSessionCreationUrl = null;
+const util = require('./util');
 var accessToken = null;
 
 /**
@@ -37,7 +38,7 @@ module.exports = at => {
 
     jsome(request);
 
-    return fetch('https://api.stage.payex.com/psp/consumers', {
+    return fetch(baseUrl + '/psp/consumers', {
         method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + accessToken,
@@ -87,7 +88,7 @@ function createPaymentOrder(paymentOrder) {
 
 	// Perform an HTTP POST request to the previously retrieved URL to create
 	// a new Payment Order.
-    return fetch('https://api.stage.payex.com/psp/paymentorders', {
+    return fetch(baseUrl + '/psp/paymentorders', {
         method: 'POST',
         headers: {
             'Authorization': 'Bearer ' + accessToken,
@@ -129,37 +130,23 @@ function createPaymentOrder(paymentOrder) {
   * Captures a Payment Order.
   *
   * @export capture
-  * @param paymentSession The URL of the Payment Order to capture.
+  * @param paymentOrder The URL of the Payment Order to capture.
   * @return A Promise that, when fulfilled, will return an object containing the amount and state of the captured payment.
   *
   */
-function capture(paymentSession) {
+function capture(paymentOrder) {
+    paymentOrder = baseUrl + paymentOrder;
+    var status = 0;
+
+    console.log(paymentOrder);
+
 	// First GET the Payment Order to retrieve its current state.
-    return fetch(paymentSession, {
+    return fetch(paymentOrder, {
         headers: {
             'Authorization': 'Bearer ' + accessToken
         }
     }).then(result => {
-        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
-        if (result.status != 200) {
-            throw `Error ${result.status}`;
-        }
-
-        return result.json();
-    }).then(json => {
-        jsome(json);
-		// Retrieve the `payment` property; a URL pointing to the Payment that
-		// has been created during the PayEx Checkout user flow.
-        return json.payment;
-    }).then(paymentUrl => {
-		// Perform an HTTP GET request on the Payment URL to retrieve its current state.
-        return fetch(paymentUrl, {
-            headers: {
-                'Authorization': 'Bearer ' + accessToken
-            }
-        });
-    }).then(result => {
-        console.log(`GET ${paymentSession} completed with HTTP status ${result.status}.`)
+        console.log(`GET ${paymentOrder} completed with HTTP status ${result.status}.`)
         if (result.status != 200) {
             throw `Error ${result.status}`;
         }
@@ -168,15 +155,15 @@ function capture(paymentSession) {
     }).then(json => {
         jsome(json);
 
-		// Find the `create-checkout-capture` operation in the returned Payment
-        var captureOperation = json.operations.filter(x => x.rel == 'create-checkout-capture');
-        if (captureOperation.length == 0) {
-            throw `Payment ${json.payment.id} had no capture operation`;
+		// Find the `create-paymentorder-capture` operation in the returned payment order
+        var captureOperation = json.operations.find(o => o.rel === 'create-paymentorder-capture');
+        if (captureOperation === undefined) {
+            throw `Payment order ${json.paymentOrder.id} had no capture operation`;
         }
 
-		// The `create-checkout-capture` operation's `href` contains the URL
+		// The `create-paymentorder-capture` operation's `href` contains the URL
 		// we should POST the capture request to.
-        var captureOperationUrl = captureOperation[0].href;
+        var captureOperationUrl = captureOperation.href;
 
 		// Perform the HTTP POST request to capture the Payment.
         return fetch(captureOperationUrl, {
@@ -187,22 +174,46 @@ function capture(paymentSession) {
             },
             body: JSON.stringify({
                 transaction: {
-                    description: 'Capturing the fluff!'
+                    description: 'Capturing the fluff!',
+                    amount: json.paymentOrder.amount,
+                    vatAmount: json.paymentOrder.vatAmount,
+                    payeeReference: util.generatePayeeReference(),
+                    itemDescriptions: [
+                        {
+                            amount: json.paymentOrder.amount,
+                            description: 'Fluffy animal'
+                        }
+                    ],
+                    vatSummary: [
+                        {
+                            amount: json.paymentOrder.amount,
+                            vatAmount: json.paymentOrder.vatAmount,
+                            vatPercent: 2500
+                        }
+                    ]
                 }
             })
         });
-    }).then(result => {
+    }).then(result => {                
         console.log(`Capture completed with HTTP status ${result.status}.`)
-        if (result.status != 201) {
-            throw `Error ${result.status}`;
+        status = result.status;
+        const contentType = result.headers.get('Content-Type');
+
+        if (contentType.indexOf('json') > 0) {
+            return result.json();
         }
 
-        return result.json()
+        throw `Invalid content type '${contentType}'`;
     }).then(json => {
         jsome(json);
+
+        if (status != 200) {
+            throw `Error ${status}`;
+        }
+
         return {
             amount: json.capture.transaction.amount,
             state: json.capture.transaction.state
         }
-    })
+    });
 }
