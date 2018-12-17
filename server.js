@@ -10,14 +10,14 @@ const server = express();
 
 server.use(logger('dev'));
 server.use(express.static(__dirname + '/static'));
-server.use(bodyParser.urlencoded({ extended: false }));
+server.use(bodyParser.json());
 
 /**
   * GET /
   *
   * The home page, displaying the fluffy animals you can buy.
   * Should perform a series of POST requests to PayEx Checkout to create
-  * one Payment Session for each fluffy animal.
+  * one Payment Order for each fluffy animal.
   *
   */
 server.get('/', app.showIndex);
@@ -26,7 +26,7 @@ server.get('/', app.showIndex);
   * POST /
   *
   * Invoked after the PayEx Checkout is complete. The posted form will have
-  * `paymentSession` as a hidden field, containing the URL of the Payment
+  * `paymentOrder` as a hidden field, containing the URL of the Payment
   * Session that was purchased.
   *
   * Performs capture on the created Payment and redirects to the receipt.
