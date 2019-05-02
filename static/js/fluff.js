@@ -1,7 +1,7 @@
 payex.hostedView.consumer({
-    container: 'checkout',
+    container: 'checkin',
     culture: 'nb-NO',
-    onConsumerIdentified: function (consumerIdentifiedEvent) {
+    onConsumerIdentified: function(consumerIdentifiedEvent) {
         var request = new XMLHttpRequest();
         request.addEventListener('load', function () {
             response = JSON.parse(this.responseText);
@@ -10,11 +10,8 @@ payex.hostedView.consumer({
             var script = document.createElement('script');
             script.setAttribute('src', response.operation.href);
             script.onload = function () {
-                var iframe = document.getElementsByTagName('iframe')[0];
-                iframe.parentElement.removeChild(iframe);
-
                 payex.hostedView.paymentMenu({
-                    container: 'checkout',
+                    container: 'payment-menu',
                     culture: 'nb-NO',
                     onPaymentCompleted: function (paymentCompletedEvent) {
                         window.location.href = '/receipt?po=' + paymentOrder + '&state=' + paymentCompletedEvent.state;

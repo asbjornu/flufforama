@@ -10,4 +10,5 @@
   flufforama delivered today!
 </p>
 
-<div id="checkout" style="width: 500px"></div>
+<div id="checkin"></div>
+<div id="payment-menu"></div>
