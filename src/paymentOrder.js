@@ -33,7 +33,7 @@ module.exports = function (hostUrl, userAgent, consumerProfileRef, payeeId, paye
                 completeUrl: hostUrl + "/receipt",
                 cancelUrl: hostUrl + "/receipt",
                 callbackUrl: hostUrl + "/payment-callback",
-                termsOfServiceUrl: hostUrl + "/termsandconditoons.pdf"
+                termsOfServiceUrl: "https://example.com/termsandconditoons.pdf"
             },
             payeeInfo: {
                 payeeId: payeeId,
