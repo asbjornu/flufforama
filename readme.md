@@ -1,9 +1,12 @@
 # Flufforama
 ## Instant Fluffy Gratification — Delivered!
 
-This is the repository of the Fufforama web shop, used to demonstrate PayEx
-Checkout at the launch event in Oslo May 10th.
+This is the **archived** repository of the Fufforama web shop, used to
+demonstrate **[PayEx] Checkout** at the [launch event in Oslo May 10th
+2017][event].
 
-Bootstrapped thanks to [A Simple Website in Node.js – 2016 Edition][1].
+Bootstrapped thanks to [A Simple Website in Node.js – 2016 Edition][website].
 
-[1]: https://www.clock.co.uk/insight/a-simple-website-in-node-js-2016-edition
+[event]: https://www.youtube.com/watch?v=x0TDMK-4U5k
+[payex]: https://payex.com/
+[website]: https://www.clock.co.uk/insight/a-simple-website-in-node-js-2016-edition
